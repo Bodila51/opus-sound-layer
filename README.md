@@ -33,13 +33,6 @@ ffmpeg -i video.mp4 -i audio/mix.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 2
 uv run scripts/qa.py out/final.mp4
 ```
 
-## How it was tested
-
-On Windows 11, Python 3.13, ffmpeg 8.1, through `uv run`, with a 15 s test film whose picture and cue sheet come from one timeline:
-- a clean run passes every check;
-- five deliberately broken versions each fail the right check: audio delayed in the MP4, mix 4 dB too loud, hero cue 6 frames off the picture, no ducking under the voice, effects 25 dB too quiet.
-
-
 ## Licence
 
 Code: MIT. Sounds are not stored here: `sfx.py kit` downloads CC0 (public domain) recordings from Freesound and lists every source in `audio/kit/CREDITS.md`.
