@@ -1,0 +1,207 @@
+{
+ "note": "CC0 sounds from Freesound via Openverse, picked by sfx.py checks and visual review.",
+ "sounds": {
+  "click": [
+   {
+    "title": "mouse clicks",
+    "creator": "chestnutjam",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/399/399443_2955613-hq.mp3",
+    "landing": "https://freesound.org/people/chestnutjam/sounds/399443"
+   },
+   {
+    "title": "mouse-click-double-00.flac",
+    "creator": "pbimal",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/534/534104_11830391-hq.mp3",
+    "landing": "https://freesound.org/people/pbimal/sounds/534104"
+   },
+   {
+    "title": "Mouse clicks and scroll wheel",
+    "creator": "tgfcoder",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/146/146877_197046-hq.mp3",
+    "landing": "https://freesound.org/people/tgfcoder/sounds/146877"
+   }
+  ],
+  "key": [
+   {
+    "title": "enter key",
+    "creator": "uEffects",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/180/180997_2901073-hq.mp3",
+    "landing": "https://freesound.org/people/uEffects/sounds/180997"
+   },
+   {
+    "title": "keyboard5.wav",
+    "creator": "jim-ph",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/194/194799_670763-hq.mp3",
+    "landing": "https://freesound.org/people/jim-ph/sounds/194799"
+   },
+   {
+    "title": "Keyboard Click.mp3",
+    "creator": "asetkeyzet",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/442/442649_3923226-hq.mp3",
+    "landing": "https://freesound.org/people/asetkeyzet/sounds/442649"
+   }
+  ],
+  "tick": [
+   {
+    "title": "Clock ticking",
+    "creator": "olver",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/130/130388_2037384-hq.mp3",
+    "landing": "https://freesound.org/people/olver/sounds/130388"
+   },
+   {
+    "title": "Clock Tick",
+    "creator": "FlashTrauma",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/398/398275_2351866-hq.mp3",
+    "landing": "https://freesound.org/people/FlashTrauma/sounds/398275"
+   }
+  ],
+  "tap": [
+   {
+    "title": "Wood Knock",
+    "creator": "Mrguff",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/369/369710_2855293-hq.mp3",
+    "landing": "https://freesound.org/people/Mrguff/sounds/369710"
+   },
+   {
+    "title": "drop06.wav",
+    "creator": "newagesoup",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/339/339364_4067257-hq.mp3",
+    "landing": "https://freesound.org/people/newagesoup/sounds/339364"
+   }
+  ],
+  "thump": [
+   {
+    "title": "Three Thuds more reverb",
+    "creator": "AVstudent",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/732/732784_5610899-hq.mp3",
+    "landing": "https://freesound.org/people/AVstudent/sounds/732784"
+   },
+   {
+    "title": "Dull Decompression Punch Impact Explodes 96kHz",
+    "creator": "qubodup",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/71/71274_71257-hq.mp3",
+    "landing": "https://freesound.org/people/qubodup/sounds/71274"
+   },
+   {
+    "title": "ANI Big Pipe Hit",
+    "creator": "ani_music",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/244/244983_3008343-hq.mp3",
+    "landing": "https://freesound.org/people/ani_music/sounds/244983"
+   }
+  ],
+  "pop": [
+   {
+    "title": "Bubble Pop",
+    "creator": "Mafon2",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/253/253956_1196472-hq.mp3",
+    "landing": "https://freesound.org/people/Mafon2/sounds/253956"
+   },
+   {
+    "title": "Bubbles popping on the surface of water",
+    "creator": "vintage2005",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/459/459582_4807538-hq.mp3",
+    "landing": "https://freesound.org/people/vintage2005/sounds/459582"
+   },
+   {
+    "title": "bubble pop out",
+    "creator": "tsidilin",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/254/254892_1385065-hq.mp3",
+    "landing": "https://freesound.org/people/tsidilin/sounds/254892"
+   }
+  ],
+  "whoosh": [
+   {
+    "title": "FX - Swoosh - Light",
+    "creator": "bolkmar",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/475/475132_2927958-hq.mp3",
+    "landing": "https://freesound.org/people/bolkmar/sounds/475132"
+   },
+   {
+    "title": "whip01.wav",
+    "creator": "snowflakes",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/72/72189_1070711-hq.mp3",
+    "landing": "https://freesound.org/people/snowflakes/sounds/72189"
+   },
+   {
+    "title": "Swoosh 3",
+    "creator": "D4XX",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/607/607250_887696-hq.mp3",
+    "landing": "https://freesound.org/people/D4XX/sounds/607250"
+   }
+  ],
+  "swish": [
+   {
+    "title": "Fabric flaps",
+    "creator": "PelicanPolice",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/580/580967_13110737-hq.mp3",
+    "landing": "https://freesound.org/people/PelicanPolice/sounds/580967"
+   },
+   {
+    "title": "Fabrics.mp3",
+    "creator": "livvy0221",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/467/467264_4440707-hq.mp3",
+    "landing": "https://freesound.org/people/livvy0221/sounds/467264"
+   }
+  ],
+  "chime": [
+   {
+    "title": "ding.wav",
+    "creator": "Daphne_in_Wonderland",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/127/127149_667113-hq.mp3",
+    "landing": "https://freesound.org/people/Daphne_in_Wonderland/sounds/127149"
+   },
+   {
+    "title": "sqeeeek_bell_ting1.wav",
+    "creator": "sqeeeek",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/237/237106_4277312-hq.mp3",
+    "landing": "https://freesound.org/people/sqeeeek/sounds/237106"
+   }
+  ],
+  "paper": [
+   {
+    "title": "Page Turn (2)",
+    "creator": "OwlStorm",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/151/151221_140737-hq.mp3",
+    "landing": "https://freesound.org/people/OwlStorm/sounds/151221"
+   },
+   {
+    "title": "Page Turn 04.wav",
+    "creator": "MATRIXXX_",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/397/397551_6142149-hq.mp3",
+    "landing": "https://freesound.org/people/MATRIXXX_/sounds/397551"
+   },
+   {
+    "title": "Page Turn",
+    "creator": "qubodup",
+    "license": "cc0",
+    "url": "https://cdn.freesound.org/previews/442/442857_71257-hq.mp3",
+    "landing": "https://freesound.org/people/qubodup/sounds/442857"
+   }
+  ]
+ }
+}
