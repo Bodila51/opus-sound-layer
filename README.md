@@ -39,7 +39,6 @@ On Windows 11, Python 3.13, ffmpeg 8.1, through `uv run`, with a 15 s test film 
 - a clean run passes every check;
 - five deliberately broken versions each fail the right check: audio delayed in the MP4, mix 4 dB too loud, hero cue 6 frames off the picture, no ducking under the voice, effects 25 dB too quiet.
 
-Not tested: how it sounds to people. The QA measures; a human still has to listen.
 
 ## Licence
 
