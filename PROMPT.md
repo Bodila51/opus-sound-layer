@@ -17,7 +17,9 @@ stops) · appear (element pops in). One hero per ~4 s (logo, reveal):
 
 2 SOUNDS  uv run sound-layer/scripts/sfx.py kit  (1,139 CC0 sounds, 19
 types: hit boom riser reverse transition whoosh swish glitch ui click key
-tick tap pop thump paper chime shimmer zap). Choose every sound yourself:
+tick tap pop thump paper chime shimmer zap). The first run downloads the
+library: give it a 10-minute timeout or run it in the background. Choose
+every sound yourself:
 sfx.py browse --type <type> --like "<material, weight, mood>", LOOK at
 audio/browse.png, put the chosen id in the cue. Keep one sonic family per
 film (e.g. glass + air, or metal + sub); vary repeats. A bare type uses
