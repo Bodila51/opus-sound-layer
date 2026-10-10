@@ -30,7 +30,7 @@ mono, 48 kHz, peak at -3 dBFS. Judge = reject boomy (>50% energy below
 steady noise or clicks inside whooshes, risers that don't build. Every
 prepared file gets a .json sidecar with its measurements.
 """
-import argparse, io, json, os, re, shutil, subprocess, sys, urllib.parse, urllib.request, zipfile
+import argparse, concurrent.futures, io, json, os, re, shutil, subprocess, sys, urllib.parse, urllib.request, zipfile
 import numpy as np
 from scipy import signal
 import soundfile as sf
@@ -247,9 +247,33 @@ def slug(s):
 
 
 def fetch(url, dst):
+    """Download to dst. Writes to a .part file first, so an interrupted run
+    never leaves a truncated file that a rerun would take as done."""
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=120) as r, open(dst, "wb") as fh:
+    with urllib.request.urlopen(req, timeout=120) as r, open(dst + ".part", "wb") as fh:
         fh.write(r.read())
+    os.replace(dst + ".part", dst)
+
+
+def fetch_all(jobs, workers=16):
+    """Download (url, dst) pairs in parallel, skipping files already there.
+    Returns {dst: error} for the ones that failed."""
+    todo = [(u, d) for u, d in jobs if not os.path.exists(d)]
+    if not todo: return {}
+    print(f"downloading {len(todo)} files ({len(jobs) - len(todo)} already here)", flush=True)
+    errors, done = {}, 0
+    def one(job):
+        u, d = job
+        os.makedirs(os.path.dirname(d), exist_ok=True)
+        try: fetch(u, d)
+        except Exception as ex: return d, ex
+        return d, None
+    with concurrent.futures.ThreadPoolExecutor(workers) as ex:
+        for d, err in ex.map(one, todo):
+            done += 1
+            if err is not None: errors[d] = err
+            if done % 100 == 0 or done == len(todo): print(f"  {done}/{len(todo)}", flush=True)
+    return errors
 
 
 def openverse(query, n, page=1):
@@ -300,7 +324,7 @@ def words(s):
 
 def catalog_entry(side, root, tags, credit, default=False):
     m = {k: side[k] for k in ("dur_s", "peak_offset_s", "rise_ms", "centroid_hz", "below150", "above6k", "flatness", "note")}
-    rel = os.path.relpath(side["file"], root)
+    rel = os.path.relpath(side["file"], root).replace(os.sep, "/")   # same ids on Windows
     return dict(id=rel[:-4], type=side["type"], file=rel, tags=sorted(set(tags)), credit=credit,
                 default=default, **m)
 
@@ -329,14 +353,22 @@ def build_library(manifest, out):
     raw_dir = os.path.join(out, "_raw"); os.makedirs(raw_dir, exist_ok=True)
     defaults = set(lib.get("defaults", []))
     entries, credits, total, rejected = [], [], 0, 0
-    for typ in TYPES:
+    for typ in TYPES:                   # rebuild from scratch, but keep sounds added with `sfx.py add`
         d = os.path.join(out, typ)
-        if os.path.isdir(d): shutil.rmtree(d)
+        if os.path.isdir(d):
+            for f in os.listdir(d):
+                if not f.startswith("own-"): os.remove(os.path.join(d, f))
+    zpath_of = lambda pack: os.path.join(raw_dir, os.path.basename(pack["url"]))
+    raw_of = lambda it: os.path.join(raw_dir, "freesound", f"{it['id']}.mp3")
+    failed = fetch_all([(p["url"], zpath_of(p)) for p in lib.get("packs", [])] +
+                       [(it["url"], raw_of(it)) for it in lib.get("freesound", [])])
     for pack in lib.get("packs", []):
-        zpath = os.path.join(raw_dir, os.path.basename(pack["url"]))
-        if not os.path.exists(zpath):
-            print("download", pack["name"]); fetch(pack["url"], zpath)
-        z = zipfile.ZipFile(zpath)
+        zpath = zpath_of(pack)
+        try:
+            if zpath in failed: raise failed[zpath]
+            z = zipfile.ZipFile(zpath)
+        except Exception as ex:
+            print(f"skip pack {pack['name']}: {ex}", file=sys.stderr); continue
         rules = [(re.compile(r, re.I), typ, tags) for r, typ, tags in pack["map"]]
         n_pack = 0
         for member in sorted(z.namelist()):
@@ -358,14 +390,14 @@ def build_library(manifest, out):
         credits.append(f"- {pack['credit']}, {pack['license'].upper()}, {pack['landing']}")
         print(f"{pack['name']:18s} {n_pack} sounds")
     for it in lib.get("freesound", []):
-        raw = os.path.join(raw_dir, "freesound", f"{it['id']}.mp3")
-        os.makedirs(os.path.dirname(raw), exist_ok=True)
-        try:
-            if not os.path.exists(raw): fetch(it["url"], raw)
-        except Exception as ex:
-            print("skip", it["title"], ex, file=sys.stderr); continue
+        raw = raw_of(it)
+        if raw in failed or not os.path.exists(raw):
+            print("skip", it["title"], failed.get(raw, "not downloaded"), file=sys.stderr); continue
         name = f"fs-{it['id']}-{slug(it['title'])[:28]}".rstrip("-")
-        sides = prepare(raw, it["type"], os.path.join(out, it["type"]), name, it, k=it.get("k", 1))
+        try:
+            sides = prepare(raw, it["type"], os.path.join(out, it["type"]), name, it, k=it.get("k", 1))
+        except Exception as ex:          # e.g. the host sent an error page instead of audio
+            print("skip", it["title"], ex, file=sys.stderr); os.remove(raw); continue
         keep = it.get("keep")
         for i, side in enumerate(sides):
             total += 1
