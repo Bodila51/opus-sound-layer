@@ -70,6 +70,10 @@ SCHEMA = """{
   ]
 }
 sound: type | type/id from sfx.py browse | file path | "a+b" layers.
+Choose each sound yourself with `sfx.py browse --type <type> --like "..."`;
+heroes: "hit+boom" (or "thump+tap" for soft), a "riser" or "reverse"
+peaking on the same frame. Types: hit boom riser reverse transition whoosh
+swish glitch ui click key tick tap pop thump paper chime shimmer zap.
 frame or t (seconds); weight hero|support (default support); align
 peak|end|start (default peak); pan -1..1 (clamped to +-0.6); visual
 cut|move|land is what qa.py checks against the picture."""

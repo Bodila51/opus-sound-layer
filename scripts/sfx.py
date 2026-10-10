@@ -381,6 +381,11 @@ def build_library(manifest, out):
                                  "Kenney packs and Freesound recordings are CC0 (public domain). Credit is not required but given.", ""], credits)
     print(f"library: {len(entries)} sounds in {len(set(e['type'] for e in entries))} types "
           f"({rejected} of {total} cut events rejected by the checks) -> {out}/catalog.json")
+    print("\nPick every sound yourself: sfx.py browse --type <type> --like \"<material, weight, mood>\",\n"
+          "look at audio/browse.png and put the chosen id in the cue (\"sound\": \"hit/<id>\").\n"
+          "A bare type uses the defaults. Nothing fits? Find one yourself: sfx.py search, or any\n"
+          "recording whose licence allows it, then sfx.py add FILE --type <type> --credit \"...\".\n"
+          "Types: " + ", ".join(f"{k} ({sum(e['type'] == k for e in entries)})" for k in TYPES))
 
 
 def read_added(root):
