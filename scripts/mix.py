@@ -15,15 +15,23 @@ What it does, in order:
          before cues with "build", a 0.4 s dead stop before cues with
          "stop_before", ducking under the voice (default 10 dB, 80/250 ms)
   voice: placed and levelled
-  sfx:   each cue's sound (a kit type, "type+type" layers, or synth:pluck /
-         synth:bell tuned by "note") is placed so its peak lands on the cue
+  sfx:   each cue's sound is placed so its peak lands on the cue. A sound is
+         a library type ("hit": rotates through that type's defaults), a
+         library id you picked with `sfx.py browse` ("hit/kenney-impact-
+         metal-heavy-2"), a path to any audio file you chose yourself,
+         "a+b" layers (peaks aligned, later layers -4 dB), or synth:pluck /
+         synth:bell tuned by "note" (musical accents only, never for hits,
+         clicks or whooshes). "pitch" shifts a cue by semitones.
          ("align": "peak"; "end" ends on the cue; "start" starts on it).
          Repeats rotate through the kit's files with seeded +-2% pitch.
          Gain is solved per event against the music+voice bed, in the
          sound's own band: +3.5 dB (hero +5), the 2-8 kHz lift capped at
          4 dB, the peak capped at 6 dB over the local bed peak (hero 8).
          Same sound and weight: gains within 2 dB of their median.
-         Sounds within 0.15 s of the previous one: x0.6.
+         Sounds within 0.15 s of the previous one: x0.6 (not hero hits,
+         so a riser can peak on its hit).
+  room:  every sound effect goes through one short shared room (0.6 s,
+         -16 dB wet) so recordings from different places share a space.
   master: integrated loudness to the target (punchy -14, calm -18 LUFS),
          look-ahead true-peak limiter at -2 dBTP so the AAC encode stays
          under -1 dBTP.
@@ -41,7 +49,8 @@ SCHEMA = """{
   "duration_s": 15.0,              // film length
   "energy": "punchy",              // punchy | calm (sets loudness and lifts)
   "lufs": -14,                     // optional override of the master target
-  "kit": "audio/kit",              // folder of prepared sounds: <kit>/<type>/*.wav
+  "kit": "audio/kit",              // library built by sfx.py kit (catalog.json)
+  "room": {"decay_s": 0.6, "wet_db": -16},   // optional; false = dry
   "music": {"file": "audio/music.wav", "start_s": 0, "loop": true,
             "fade_out_s": 1.0},    // optional
   "voice": [{"file": "audio/vo.wav", "start_s": 0.5}],   // optional
@@ -51,11 +60,20 @@ SCHEMA = """{
     {"id": "logo", "frame": 120, "sound": "thump+tap", "weight": "hero",
      "align": "peak", "pan": 0.0, "visual": "land",
      "stop_before": true, "build": true},
+    {"id": "build", "frame": 120, "sound": "riser/fs-123-tension-riser-1",
+     "align": "peak", "weight": "support"},
     {"id": "push", "frame": 64, "sound": "whoosh", "weight": "support",
      "align": "peak", "pan": -0.3, "visual": "move"},
+    {"id": "own", "t": 7.2, "sound": "audio/candidates/glitch/ov-1a2b3c4d.wav",
+     "pitch": -2},
     {"id": "accent", "t": 9.5, "sound": "synth:pluck", "note": 64}
   ]
 }
+sound: type | type/id from sfx.py browse | file path | "a+b" layers.
+Choose each sound yourself with `sfx.py browse --type <type> --like "..."`;
+heroes: "hit+boom" (or "thump+tap" for soft), a "riser" or "reverse"
+peaking on the same frame. Types: hit boom riser reverse transition whoosh
+swish glitch ui click key tick tap pop thump paper chime shimmer zap.
 frame or t (seconds); weight hero|support (default support); align
 peak|end|start (default peak); pan -1..1 (clamped to +-0.6); visual
 cut|move|land is what qa.py checks against the picture."""
@@ -142,21 +160,39 @@ def synth(kind, note, seed):
 
 
 class Kit:
+    """Sounds from the library built by sfx.py. A cue's sound can be
+    a type ("hit": rotates through that type's defaults in catalog.json, or
+    all its files), a library id ("hit/kenney-impact-metal-heavy-2"), or a
+    path to any audio file."""
     def __init__(self, root):
         self.root, self.count, self.cache = root, {}, {}
+        p = os.path.join(root, "catalog.json")
+        self.catalog = json.load(open(p)) if os.path.exists(p) else None
 
     def files(self, typ):
+        if self.catalog and self.catalog["types"].get(typ, {}).get("defaults"):
+            return [os.path.join(self.root, i + ".wav") for i in self.catalog["types"][typ]["defaults"]]
         d = os.path.join(self.root, typ)
         if not os.path.isdir(d): raise SystemExit(f"kit has no type '{typ}' in {self.root}")
         fs = sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".wav"))
         if not fs: raise SystemExit(f"kit type '{typ}' is empty")
         return fs
 
-    def next(self, typ, seed):
-        fs = self.files(typ)
-        k = self.count.get(typ, 0); self.count[typ] = k + 1
+    def resolve(self, token):
+        if os.path.isfile(token): return [token]
+        if "/" in token:
+            f = os.path.join(self.root, token if token.endswith(".wav") else token + ".wav")
+            if not os.path.isfile(f): raise SystemExit(f"no sound '{token}' in {self.root} (see sfx.py browse)")
+            return [f]
+        return self.files(token)
+
+    def next(self, token, seed):
+        fs = self.resolve(token)
+        k = self.count.get(token, 0); self.count[token] = k + 1
         f = fs[k % len(fs)]
-        if f not in self.cache: self.cache[f] = sf.read(f)[0].astype(np.float64)
+        if f not in self.cache:
+            self.cache[f] = sf.read(f)[0].astype(np.float64) if f.endswith(".wav") else load(f, 1)[:, 0]
+            if self.cache[f].ndim > 1: self.cache[f] = self.cache[f].mean(axis=1)
         x = self.cache[f]
         ratio = 1 + np.random.default_rng(seed).uniform(-0.02, 0.02)   # +-2% pitch
         n = int(len(x) / ratio)
@@ -176,7 +212,23 @@ def build_event(cue, kit):
     n = max(pk - p + len(y) for y, p in layers)
     x = np.zeros(n)
     for y, p in layers: x[pk - p: pk - p + len(y)] += y      # peaks coincide
+    if cue.get("pitch"):                                      # semitones, e.g. to sit in the music's key
+        r = 2 ** (float(cue["pitch"]) / 12)
+        x = np.interp(np.arange(int(len(x) / r)) * r, np.arange(len(x)), x)
     return x, used
+
+
+def room(sfx, decay_s, wet_db, seed=7):
+    """One short shared room for every sound effect, so recordings from
+    different places sound like one scene: decorrelated stereo tail,
+    12 ms pre-delay, 250 Hz-7 kHz, RT60 = decay_s."""
+    rng = np.random.default_rng(seed)
+    n = int(decay_s * SR); t = np.arange(n) / SR
+    ir = rng.standard_normal((n, 2)) * np.exp(-6.91 * t / decay_s)[:, None]
+    ir = signal.sosfilt(signal.butter(2, [250, 7000], "bandpass", fs=SR, output="sos"), ir, axis=0)
+    ir = np.vstack([np.zeros((int(0.012 * SR), 2)), ir / np.sqrt(np.sum(ir ** 2, axis=0))])
+    wet = np.stack([signal.fftconvolve(sfx.mean(axis=1), ir[:, ch])[: len(sfx)] for ch in (0, 1)], axis=1)
+    return sfx + wet * undb(wet_db)
 
 
 def one_pole(target, att_s, rel_s, rate=1000):
@@ -320,7 +372,7 @@ def main():
     for ev in sorted(events, key=lambda e: e["peak_s"]):
         med = float(np.median(groups[(ev["sound"], ev["weight"])]))
         ev["gain_db"] = float(np.clip(ev["gain_db"], med - 2, med + 2))
-        if ev["peak_s"] - last_peak < 0.15: ev["gain_db"] += db(0.6); ev["limited_by"] += " + cluster x0.6"
+        if ev["peak_s"] - last_peak < 0.15 and ev["weight"] != "hero": ev["gain_db"] += db(0.6); ev["limited_by"] += " + cluster x0.6"
         last_peak = ev["peak_s"]
     sfx = np.zeros((N, 2))
     for ev in events:
@@ -329,6 +381,9 @@ def main():
         th = (ev["pan"] + 1) * np.pi / 4
         sfx[a0:a1, 0] += x[a0 - s:a1 - s] * np.cos(th); sfx[a0:a1, 1] += x[a0 - s:a1 - s] * np.sin(th)
         ev["gain_db"] = round(ev["gain_db"], 2)
+    rm = C.get("room", {})
+    if rm is not False and np.any(sfx):
+        sfx = room(sfx, float(rm.get("decay_s", 0.6)), float(rm.get("wet_db", -16)))
 
     # master
     mix = music + voice + sfx
