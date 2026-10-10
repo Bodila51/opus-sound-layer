@@ -350,7 +350,10 @@ def main():
         bed_rms = float(np.sqrt(np.mean(bed_mono[w0:w1] ** 2))) if w1 > w0 else 0.0
         e28 = band_rms(xs[w0:w1], 2000, 8000)
         m28 = max(band_rms(bed_mono[w0:w1], 2000, 8000), bed_rms * undb(-20), undb(-60))
-        if e28 > 0:
+        # a hero whose body sits below 2 kHz keeps its body: the 2-8 kHz cap
+        # would hold the whole hit down for the sake of its bright edge
+        body_hero = weight == "hero" and BANDS[k][1] <= 2000
+        if e28 > 0 and not body_hero:
             cap = 9 if weight == "hero" else 6                       # 2-8 kHz lift cap, dB
             g28 = m28 * np.sqrt(10 ** (cap / 10) - 1) / e28
             if g28 < g: g, why = g28, "2-8 kHz cap"
