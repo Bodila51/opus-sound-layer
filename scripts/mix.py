@@ -393,6 +393,10 @@ def main():
         L = lufs(out)
         if abs(L - target) <= 0.3 and true_peak(out) <= -1.95: break
         gain *= undb(target - L); out = mix * gain
+    else:
+        # never converged (e.g. a few short sounds and no music can't reach
+        # the target): never ship unlimited audio, qa.py reports the loudness
+        out = limiter(limiter(out, -2.0), -2.0)
     os.makedirs(os.path.join(a.out, "stems"), exist_ok=True)
     sf.write(os.path.join(a.out, "mix.wav"), out.astype(np.float32), SR, subtype="PCM_24")
     for name, st in (("music", music), ("voice", voice), ("sfx", sfx)):
