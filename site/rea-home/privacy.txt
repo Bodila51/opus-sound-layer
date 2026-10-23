@@ -1,0 +1,16 @@
+REA Home: what is counted
+
+No cookies. Your IP address is not stored, and nothing is saved in your browser for this.
+The photo is read on your device and never uploaded or shown. Brand, model and any other text read from a label are never sent.
+
+One anonymous record per page visit, under a random id made for that visit only:
+- rough location from Cloudflare: country, region, city
+- device type (phone, tablet or computer), and the names of the browser and the operating system
+- language, window width, dark or light theme
+- the name of the site you came from
+- time on the page, how long each part of the page was on screen, how far you scrolled
+- which steps you reached: opened the camera, took or chose a photo, the label was read, a prompt was shown, a prompt was copied
+- which devices you opened in the 3D home, the kind of device read (router, TV and so on), and how often the buttons were used
+- how many page errors happened
+
+The records are kept in a Cloudflare D1 database that only the site's owner can read.
